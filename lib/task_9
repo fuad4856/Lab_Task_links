@@ -1,0 +1,142 @@
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(const Fuad());
+}
+
+class Fuad extends StatelessWidget {
+  const Fuad({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Animated Card List',
+      debugShowCheckedModeBanner: false,
+      home: const CardListScreen(),
+    );
+  }
+}
+
+class CardListScreen extends StatelessWidget {
+  const CardListScreen({super.key});
+
+  final List<Map<String, String>> items = const [
+    {
+      'image': 'https://via.placeholder.com/150',
+      'title': 'Title 1',
+      'subtitle': 'Subtitle 1',
+      'description': 'This is the description for card 1.',
+    },
+    {
+      'image': 'https://via.placeholder.com/150',
+      'title': 'Title 2',
+      'subtitle': 'Subtitle 2',
+      'description': 'This is the description for card 2.',
+    },
+    {
+      'image': 'https://via.placeholder.com/150',
+      'title': 'Title 3',
+      'subtitle': 'Subtitle 3',
+      'description': 'This is the description for card 3.',
+    },
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Animated Cards')),
+      body: ListView.builder(
+        padding: const EdgeInsets.all(10),
+        itemCount: items.length,
+        itemBuilder: (context, index) {
+          final item = items[index];
+          return AnimatedCard(
+            imageUrl: item['image']!,
+            title: item['title']!,
+            subtitle: item['subtitle']!,
+            description: item['description']!,
+          );
+        },
+      ),
+    );
+  }
+}
+
+class AnimatedCard extends StatefulWidget {
+  final String imageUrl;
+  final String title;
+  final String subtitle;
+  final String description;
+
+  const AnimatedCard({
+    super.key,
+    required this.imageUrl,
+    required this.title,
+    required this.subtitle,
+    required this.description,
+  });
+
+  @override
+  State<AnimatedCard> createState() => _AnimatedCardState();
+}
+
+class _AnimatedCardState extends State<AnimatedCard> with SingleTickerProviderStateMixin {
+  double _scale = 1.0;
+
+  void _onTapDown(TapDownDetails details) {
+    setState(() => _scale = 0.96);
+  }
+
+  void _onTapUp(TapUpDetails details) {
+    setState(() => _scale = 1.0);
+  }
+
+  void _onTapCancel() {
+    setState(() => _scale = 1.0);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTapDown: _onTapDown,
+      onTapUp: _onTapUp,
+      onTapCancel: _onTapCancel,
+      onTap: () {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${widget.title} tapped')),
+        );
+      },
+      child: AnimatedScale(
+        duration: const Duration(milliseconds: 200),
+        scale: _scale,
+        child: Card(
+          elevation: 5,
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ClipRRect(
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                child: Image.network(widget.imageUrl, fit: BoxFit.cover, width: double.infinity, height: 180),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(widget.title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 4),
+                    Text(widget.subtitle, style: const TextStyle(color: Colors.grey)),
+                    const SizedBox(height: 8),
+                    Text(widget.description),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
